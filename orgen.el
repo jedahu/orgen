@@ -175,7 +175,7 @@ contextual information."
                            (org-export-get-reference inline-src-block info))))
              (if (not lbl) "" (format " id=\"%s\"" lbl)))))
       (format "<code class=\"src src-%s\"%s>%s</code>" lang label
-              (substring code 0 -1))))
+              (string-trim code))))
 
   (add-hook 'org-export-before-processing-hook #'orgen--org-expand-navigation)
   (add-hook 'org-export-before-parsing-hook #'orgen--org-remove-contents)
