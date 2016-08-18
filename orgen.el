@@ -112,6 +112,7 @@
             (coding-system-for-read 'utf-8)
             (coding-system-for-write 'utf-8)
             (org-babel-default-header-args (plist-get plist :babel-header-args))
+            (org-babel-default-inline-header-args (plist-get plist :babel-inline-header-args))
             (org-html-htmlize-output-type 'css)
             (org-publish-use-timestamps-flag (plist-get plist :use-timestamps))
             (org-link-abbrev-alist (plist-get plist :link-abbrevs))
