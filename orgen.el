@@ -41,6 +41,15 @@
   (require 'ox-publish)
   (require 'ox-html)
   (require 'ob-shell)
+  (require 'ansi-color)
+
+  (defun orgen--fontify-ansi-colors (limit)
+    (ansi-color-apply-on-region (point) limit))
+
+  (define-derived-mode ansi-mode fundamental-mode "ansi"
+    "Fundamental mode that understands ANSI colors."
+    (require 'ansi-color)
+    (font-lock-add-keywords nil '((orgen--fontify-ansi-colors))))
 
   (defun orgen--store-message (format &rest args)
     (with-current-buffer (get-buffer-create "*orgen-log*")
