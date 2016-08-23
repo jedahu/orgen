@@ -40,6 +40,7 @@
 (with-eval-after-load 'org
   (require 'ox-publish)
   (require 'ox-html)
+  (require 'ob-shell)
 
   (defun orgen--store-message (format &rest args)
     (with-current-buffer (get-buffer-create "*orgen-log*")
