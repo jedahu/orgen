@@ -116,6 +116,8 @@
             (org-html-htmlize-output-type 'css)
             (org-publish-use-timestamps-flag (plist-get plist :use-timestamps))
             (org-link-abbrev-alist (plist-get plist :link-abbrevs))
+            (org-export-babel-evaluate t)
+            (org-confirm-babel-evaluate nil)
             (default-directory proj-root))
        (org-add-link-type "proj"
                           (lambda (path)
