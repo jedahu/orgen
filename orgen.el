@@ -24,7 +24,7 @@
     (let* ((proj (orgen--read proj-root))
            (required-pkgs (plist-get (cdr proj) :require))
            (pkgs (remove-if #'package-installed-p
-                           (cons 'org-plus-contrib required-pkgs))))
+                           (apply #'list 'org-plus-contrib required-pkgs))))
       (when pkgs
         (package-refresh-contents)
         (dolist (pkg pkgs)
@@ -42,6 +42,18 @@
   (require 'ox-html)
   (require 'ob-shell)
   (require 'ansi-color)
+
+  (defun orgen--set-babel-:args (prefix plist)
+    (set (intern prefix) (car plist))
+    (cl-loop for (lang args) on (cdr plist) by 'cddr
+             do (set (intern (concat prefix (symbol-name lang)))
+                     args)))
+
+  (defun orgen--set-babel-header-args (plist)
+    (orgen--set-babel-:args "org-babel-default-header-args" plist))
+
+  (defun orgen--set-babel-inline-header-args (plist)
+    (orgen--set-babel-:args "org-babel-default-inline-header-args" plist))
 
   (defun orgen--fontify-ansi-colors (limit)
     (ansi-color-apply-on-region (point) limit))
@@ -121,14 +133,15 @@
             (buffer-file-coding-system 'utf-8)
             (coding-system-for-read 'utf-8)
             (coding-system-for-write 'utf-8)
-            (org-babel-default-header-args (plist-get plist :babel-header-args))
-            (org-babel-default-inline-header-args (plist-get plist :babel-inline-header-args))
             (org-html-htmlize-output-type 'css)
             (org-publish-use-timestamps-flag (plist-get plist :use-timestamps))
             (org-link-abbrev-alist (plist-get plist :link-abbrevs))
             (org-export-babel-evaluate t)
             (org-confirm-babel-evaluate nil)
             (default-directory proj-root))
+       (orgen--set-babel-header-args (plist-get plist :babel-header-args))
+       (orgen--set-babel-inline-header-args
+        (plist-get plist :babel-inline-header-args))
        (org-add-link-type "proj"
                           (lambda (path)
                             (find-file (concat doc-root path))))
