@@ -24,7 +24,7 @@
     (let* ((proj (orgen--read proj-root))
            (required-pkgs (plist-get (cdr proj) :require))
            (pkgs (remove-if #'package-installed-p
-                           (apply #'list 'org-plus-contrib required-pkgs))))
+                           (apply #'list 'outorg 'org-plus-contrib required-pkgs))))
       (when pkgs
         (package-refresh-contents)
         (dolist (pkg pkgs)
@@ -42,6 +42,7 @@
   (require 'ox-html)
   (require 'ob-shell)
   (require 'ansi-color)
+  (require 'outorg)
 
   (defun orgen--set-babel-:args (prefix plist)
     (set (intern prefix) (car plist))
@@ -124,6 +125,13 @@
       (while (re-search-forward "^[ \t]*#\\+\\(HTML_NAV\\):" nil t)
         (replace-match "INCLUDE" t t nil 1))))
 
+  (defun orgen--outorg-convert-to-org (backend)
+    (set-auto-mode t)
+    (orgen--info "convert %s source to org-mode" major-mode)
+    (unless (eq 'org-mode major-mode)
+      (outorg-convert-to-org)
+      (org-mode)))
+
   (defun orgen-publish (proj-root &optional proj)
     (orgen--info "begin publishing")
     (orgen--with-store-messages
@@ -202,8 +210,16 @@ contextual information."
       (format "<code class=\"src src-%s\"%s>%s</code>" lang label
               (org-trim code))))
 
+  (defun orgen--outorg-wrap-source-in-block (fun lang &optional _)
+    (funcall fun lang))
+
+  (advice-add 'outorg-wrap-source-in-block :around 'orgen--outorg-wrap-source-in-block)
+
   (add-hook 'org-export-before-processing-hook #'orgen--org-expand-navigation)
+  (add-hook 'org-export-before-processing-hook #'orgen--outorg-convert-to-org)
   (add-hook 'org-export-before-parsing-hook #'orgen--org-remove-contents)
+
+  (add-to-list 'outorg-language-name-assocs '(js-mode . js))
 
   (org-export-define-derived-backend
    'orgen-html 'html
